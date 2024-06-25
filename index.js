@@ -36,7 +36,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/article", articleRoute);
 app.use("/api/user", userRoute);
 
-app.get("/", (_, res) => {
+app.get("/api/intro", (_, res) => {
   res.json({
     message:
       "Hello, this is riseaddisproperties, your most trusted realestate properties site provider",
