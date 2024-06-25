@@ -36,10 +36,17 @@ app.use("/api/auth", authRoute);
 app.use("/api/article", articleRoute);
 app.use("/api/user", userRoute);
 
-app.get("/api", (_, res) => {
+app.get("/", (_, res) => {
   res.json({
     message:
-      "Hello, this is riseaddis, your most trusted realestate properties site provider",
+      "Hello, this is riseaddisproperties, your most trusted realestate properties site provider",
+    developer: {
+      name: "Melka Tolessa",
+      phoneNumber: "0931213930",
+      github: "https://github.com/Melka1",
+      email: "melkatole1@gmail.com",
+      portfolio: "https://portfolio-melka1.vercel.app/",
+    },
   });
 });
 
