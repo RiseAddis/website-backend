@@ -1,7 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../prisma/main.js";
 
 const addUnit = async (req, res) => {
   const {
+    name,
     bathroom,
     bedroom,
     balcony,
@@ -10,36 +11,30 @@ const addUnit = async (req, res) => {
     totalArea,
     payments,
     available,
-    // images,
     siteId,
     images,
+    price,
+    total,
   } = req.body;
 
-  console.log(req.body);
-
-  if (
-    !siteId ||
-    !bathroom ||
-    !bedroom ||
-    !balcony ||
-    !netArea ||
-    !commonArea ||
-    !totalArea ||
-    !payments ||
-    !available
-  ) {
+  if (!name) {
     return res.status(400).json({
-      message: "Please provide all the required fields",
-      error: false,
+      message: "Name is required",
+      error: true,
     });
   }
 
-  const prisma = new PrismaClient();
+  if (!siteId) {
+    return res.status(400).json({
+      message: "Please provide required fields",
+      error: true,
+    });
+  }
 
   try {
     const unit = await prisma.unit.create({
       data: {
-        // images,
+        name,
         siteId,
         bathroom,
         bedroom,
@@ -48,6 +43,8 @@ const addUnit = async (req, res) => {
         commonArea,
         totalArea,
         payments,
+        price,
+        total,
         images,
         available,
       },
@@ -61,7 +58,7 @@ const addUnit = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      message: error.message,
+      message: "Server error, please try again!",
       error: true,
     });
   } finally {

@@ -1,23 +1,28 @@
 import { prisma } from "../../../prisma/main.js";
 
-const getSites = async (_, res) => {
+const getSitesAmenities = async (_, res) => {
   try {
-    const sites = await prisma.site.findMany({
-      where: { status: "active" },
-      include: {
+    const siteAmenities = await prisma.site.findMany({
+      select: {
+        id: true,
+        name: true,
+        amenities: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         realEstate: {
           select: {
             name: true,
-            link: true,
-            images: true,
-            currency: true,
           },
         },
       },
     });
 
     return res.status(200).json({
-      sites,
+      siteAmenities,
       error: false,
     });
   } catch (error) {
@@ -31,4 +36,4 @@ const getSites = async (_, res) => {
   }
 };
 
-export default getSites;
+export default getSitesAmenities;

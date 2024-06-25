@@ -1,38 +1,55 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../prisma/main.js";
 
 const addSite = async (req, res) => {
   const {
     name,
     description,
     location,
-    stage,
     footPrintArea,
+    builtUpArea,
     floors,
     basementCount,
+    buildingType,
     parkingLots,
+    studios,
     oneBedrooms,
     twoBedrooms,
     threeBedrooms,
-    realestate,
+    apartmentSizes,
+    realEstateId,
+    stage,
+    price,
+    numberOfUnits,
     images,
+    deliveryTime,
   } = req.body;
 
-  if (!name || !realestate) {
+  if (!name || !realEstateId) {
     return res.status(400).json({
-      message: "Name and Realesate are required",
+      message: "Name and Realestate are required",
       error: true,
     });
   }
 
   if (
+    !name &&
     !description &&
     !location &&
+    !footPrintArea &&
+    !builtUpArea &&
     !floors &&
+    !basementCount &&
     !parkingLots &&
+    !studios &&
     !oneBedrooms &&
     !twoBedrooms &&
     !threeBedrooms &&
-    !stage
+    !numberOfUnits &&
+    !buildingType &&
+    !apartmentSizes &&
+    !stage &&
+    !price &&
+    !deliveryTime
   ) {
     return res.status(400).json({
       message: "At least one field is required",
@@ -40,45 +57,52 @@ const addSite = async (req, res) => {
     });
   }
 
-  const prisma = new PrismaClient();
-
-  let exists = await prisma.site.findFirst({ where: { name } });
-
-  if (exists) {
-    return res.status(400).json({
-      message: "Site already exists",
-      error: true,
-    });
-  }
-
   try {
+    let exists = await prisma.site.findFirst({ where: { name } });
+
+    if (exists) {
+      return res.status(400).json({
+        message: "Site already exists",
+        error: true,
+      });
+    }
+
     let site = await prisma.site.create({
       data: {
         name,
+        realEstateId,
+        link: name.toLowerCase().split(/\s|-/).join("-"),
         description,
         location,
-        stage,
         footPrintArea,
+        builtUpArea,
         floors,
         basementCount,
         parkingLots,
+        studios,
         oneBedrooms,
         twoBedrooms,
         threeBedrooms,
-        realEstateId: realestate,
+        numberOfUnits,
+        buildingType,
+        apartmentSizes,
         images,
+        stage,
+        price,
+        deliveryTime,
       },
     });
 
-    return res.status(200).json(site);
-  } catch (err) {
+    return res.status(200).json({ site, error: false });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({
-      message: err.message,
+      message: "Server error, please try again",
       error: true,
     });
+  } finally {
+    prisma.$disconnect();
   }
-
-  // prisma.$disconnect();
 };
 
 export default addSite;

@@ -1,13 +1,13 @@
 import { prisma } from "../../../prisma/main.js";
 
-const getRealEstates = async (_, res) => {
+const getRealEstateList = async (_, res) => {
   try {
     const realEstates = await prisma.realEstate.findMany({
       where: { status: "active" },
-      include: {
-        sites: {
-          select: { name: true, price: true, link: true, location: true },
-        },
+      select: {
+        id: true,
+        name: true,
+        currency: true,
       },
     });
 
@@ -23,4 +23,4 @@ const getRealEstates = async (_, res) => {
   }
 };
 
-export default getRealEstates;
+export default getRealEstateList;

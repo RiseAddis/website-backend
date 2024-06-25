@@ -5,47 +5,38 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  // output   = "./generated/client"
 }
 
 model User {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  email   String   @unique
   name    String
-  role Role
+  email   String   @unique
+  password String
+  role Role? @default(user)
+  article Article[]
+  articleIds String[]
 }
 
 model Unit {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  bathroom Int
-  bedroom Int
-  balcony Boolean
+  name String?
+  bathroom Int?
+  bedroom Int?
+  balcony Boolean?
   images String[]
-  netArea Float
-  commonArea Float
-  totalArea Float
-  payments Payment[]
-  available Int
+  netArea Float?
+  commonArea Float?
+  totalArea Float?
+  // payments Payment[]
+  available Int?
+  total Int?
+  price String?
 
   site Site @relation(fields: [siteId], references: [id])
   siteId String @db.ObjectId
 
   status Status @default(draft)
 }
-
-// model Apartment {
-//   id      String   @id @default(auto()) @map("_id") @db.ObjectId
-//   images String[]
-
-//   amenities Amenity[] @relation(fields: [amenityIds], references: [id])
-//   amenityIds String[] @db.ObjectId @default([])
-
-//   units Unit[]
-//   site   Site   @relation(fields: [siteId], references: [id])
-//   siteId String @db.ObjectId
-
-//   status Status @default(draft)
-// } 
 
 model Site {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -57,13 +48,23 @@ model Site {
   builtUpArea Float?
   floors Int?
   basementCount Int?
-  parkingLots Int?
+  parkingLots String?
+  studios Int?
   oneBedrooms Int?
   twoBedrooms Int?
   threeBedrooms Int?
-  images String[] @default([])
-  stage Stage?
+  numberOfUnits Int?
+  buildingType String?
+  apartmentSizes String?
+  images String[]
+  stage String?
+  price Int?
   amenities Amenity[]
+  deliveryTime String?
+  featured Boolean @default(false)
+
+  payments Payment[] @relation(fields: [paymentIds], references: [id])
+  paymentIds String[] @db.ObjectId 
 
   units Unit[]
   
@@ -74,10 +75,15 @@ model Site {
 }
 
 model RealEstate {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
   name String
   link String
   images String[]
+  background String?
+  sisterCompanies String[]
+  previousProjects String[]
+  activeProjects String[]
+  currency Currency @default(etb)
 
   sites Site[]
 
@@ -87,20 +93,43 @@ model RealEstate {
 model Amenity {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
-  image String?
+
+  image ImageGallery @relation(fields: [imageId], references: [id])
+  imageId String @db.ObjectId
 
   site Site @relation(fields: [siteId], references: [id])
   siteId String @db.ObjectId
 }
 
-type Payment {
+model ImageGallery {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @default("")
+  imageUrl String
+
+  amemity Amenity[]
+}
+
+model Payment {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  paymentType PaymentType @relation(fields: [paymentTypeId], references: [id])
+  paymentTypeId String @db.ObjectId
+
+  list PaymentList[]
+
+  sites Site[] @relation(fields: [siteIds], references: [id])
+  siteIds String[] @db.ObjectId
+}
+
+model PaymentType {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
-  value Int
+
+  payments Payment[]
 }
 
 enum Role {
-  ADMIN
-  USER
+  admin
+  user
 }
 
 enum Status {
@@ -109,7 +138,35 @@ enum Status {
   inactive
 }
 
-enum Stage {
-  under_construction
-  finished
+type PaymentList {
+  name String
+  value String
+}
+
+model Article {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  link String
+  paragraphs String[]
+  imageUrl String?
+
+  status ArticleStatus @default(draft)
+
+  author User @relation(fields: [authorId], references: [id])
+  authorId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ArticleStatus {
+  draft
+  published
+}
+
+enum Currency {
+  etb
+  usd
+  euro
+  gbp
 }
